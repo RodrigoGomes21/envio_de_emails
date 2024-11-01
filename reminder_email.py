@@ -4,14 +4,15 @@ from email.mime.multipart import MIMEMultipart
 from datetime import datetime, timedelta
 import schedule
 import time
+import os  # Para usar variáveis de ambiente
 
-# ativar emails 
+# Ativar emails 
 def enviar_email(destinatario, assunto, mensagem):
     # Configuração do servidor SMTP (usando Gmail como exemplo)
     servidor = 'smtp.gmail.com'
     porta = 587
     remetente = 'rodriguinhoabel77@gmail.com'
-    senha = ''
+    senha = os.getenv('EMAIL_PASSWORD')  # Use uma variável de ambiente para a senha
 
     # Criando o e-mail
     msg = MIMEMultipart()
@@ -37,7 +38,7 @@ def verificar_evento(data_evento, destinatario):
     hoje = datetime.now().date()
     delta = data_evento - hoje
 
-    if delta == timedelta(days=30):
+    if delta.days == 30:  # Correção: verifique a diferença em dias
         assunto = "Lembrete: Faltam 30 dias para o seu evento!"
         mensagem = f"Olá, faltam exatamente 30 dias para o evento marcado para {data_evento}."
         enviar_email(destinatario, assunto, mensagem)
@@ -50,7 +51,6 @@ def agendar_verificacao(data_evento_str, destinatario):
     # Usar a biblioteca schedule para rodar a cada dia
     schedule.every().day.at("16:30").do(verificar_evento, data_evento, destinatario)
 
-
     print("Verificação diária agendada. O programa irá rodar todo dia às 16:30.")
 
     # Loop para rodar o agendamento de verificação
@@ -58,9 +58,9 @@ def agendar_verificacao(data_evento_str, destinatario):
         schedule.run_pending()
         time.sleep(60)  # Checa a cada minuto
 
-# aq vc altera a data do evento e coloca a pessoa que vai receber o email.
+# Altere a data do evento e coloque a pessoa que vai receber o email.
 data_evento = "2024-11-28"  
 email_destinatario = "rodriguinhoabel77@gmail.com"
 
-# aqui começa a verificação diaria
-agendar_verificacao(data_evento, email_destinatario) 
+# Aqui começa a verificação diária
+agendar_verificacao(data_evento, email_destinatario)
